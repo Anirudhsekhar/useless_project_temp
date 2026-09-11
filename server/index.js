@@ -30,7 +30,11 @@ app.get('/', (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`[MoodPet Server] Server running on http://localhost:${PORT}`);
-  console.log(`[MoodPet Server] Gemini Model: ${process.env.GEMINI_MODEL || 'gemini-2.0-flash'}`);
-});
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`[MoodPet Server] Server running on http://localhost:${PORT}`);
+    console.log(`[MoodPet Server] Gemini Model: ${process.env.GEMINI_MODEL || 'gemini-3.6-flash'}`);
+  });
+}
+
+export default app;
