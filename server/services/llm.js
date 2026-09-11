@@ -1,6 +1,6 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import { buildSystemPrompt } from '../prompts/moodpet.js';
-import { validateMoodState, buildAvatarContract, CATCH_MAP } from './mood.js';
+import { validateMoodState, buildAvatarContract, CATCH_MAP, applyControlledRandomness } from './mood.js';
 import { getLocalFallbackResponse } from '../utils/fallbacks.js';
 
 const FALLBACK_MODELS = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
@@ -42,7 +42,7 @@ export async function generateMoodResponse({ message, history = [], currentMood,
     properties: {
       mood: {
         type: Type.STRING,
-        enum: ['excited', 'sad', 'angry', 'dramatic', 'sleepy', 'shy'],
+        enum: ['excited', 'sad', 'angry', 'dramatic', 'sleepy', 'shy', 'confused', 'toddler', 'overprotective', 'bargainer'],
       },
       intensity: {
         type: Type.INTEGER,
@@ -55,7 +55,7 @@ export async function generateMoodResponse({ message, history = [], currentMood,
       },
       catchType: {
         type: Type.STRING,
-        enum: ['tangent', 'incomplete', 'minimal', 'exaggerated', 'trailing', 'hesitant'],
+        enum: ['tangent', 'incomplete', 'minimal', 'exaggerated', 'trailing', 'hesitant', 'second-guessing', 'distracted', 'safety-warning', 'transactional'],
       },
     },
     required: ['mood', 'intensity', 'moodReason', 'response'],
@@ -97,9 +97,13 @@ export async function generateMoodResponse({ message, history = [], currentMood,
         return getLocalFallbackResponse('malformed_json', currentMood);
       }
 
+      // Check if we should override mood with a controlled random event
+      const randomMood = applyControlledRandomness(parsed.mood);
+      const finalMood = forcedMood || randomMood || parsed.mood;
+
       const validatedMood = validateMoodState({
-        mood: forcedMood || parsed.mood,
-        intensity: parsed.intensity,
+        mood: finalMood,
+        intensity: randomMood ? Math.max(70, parsed.intensity) : parsed.intensity, // Boost intensity if randomly changed to make it obvious
       });
 
       const catchType = parsed.catchType || CATCH_MAP[validatedMood.mood] || 'tangent';

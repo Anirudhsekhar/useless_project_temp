@@ -6,6 +6,7 @@ import MoodIndicator from './components/MoodIndicator.jsx';
 import ChatWindow from './components/ChatWindow.jsx';
 import ChatInput from './components/ChatInput.jsx';
 import { RotateCcw } from 'lucide-react';
+import { speak } from './services/voice.js';
 
 const SHORTCUT_MOODS = {
   '1': 'excited',
@@ -14,6 +15,10 @@ const SHORTCUT_MOODS = {
   '4': 'dramatic',
   '5': 'sleepy',
   '6': 'shy',
+  '7': 'confused',
+  '8': 'toddler',
+  '9': 'overprotective',
+  '0': 'bargainer',
 };
 
 export default function App() {
@@ -113,6 +118,7 @@ export default function App() {
       };
 
       setMessages((prev) => [...prev, botMsg]);
+      speak(botMsg.content, botMsg.mood);
       setIsError(!data?.success);
     } catch (err) {
       console.error('[MoodPet Client] Chat request failed:', err);

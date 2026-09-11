@@ -8,6 +8,10 @@ const MOOD_BG_MAP = {
   excited: 'linear-gradient(135deg, #FFD166 0%, #F4B942 100%)',
   dramatic: 'linear-gradient(135deg, #5A189A 0%, #3C096C 100%)',
   sad: 'linear-gradient(135deg, #4A6B82 0%, #2D485B 100%)',
+  confused: 'linear-gradient(135deg, #B8B8D1 0%, #9D9DBB 100%)',
+  toddler: 'linear-gradient(135deg, #FFE29A 0%, #FFD670 100%)',
+  overprotective: 'linear-gradient(135deg, #C9E4CA 0%, #A3CBA4 100%)',
+  bargainer: 'linear-gradient(135deg, #FFB347 0%, #FF9E1B 100%)',
 };
 
 export default function MoodEnvironment({ mood, intensity }) {
@@ -141,6 +145,92 @@ export default function MoodEnvironment({ mood, intensity }) {
             pointerEvents: 'none',
           }}
         />
+      )}
+
+      {/* CONFUSED Wobbling Question Marks */}
+      {currentMood === 'confused' && (
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                top: `${20 + (i * 12)}%`,
+                left: `${15 + (i * 14)}%`,
+                color: 'rgba(255, 255, 255, 0.5)',
+                fontFamily: 'Fredoka, sans-serif',
+                fontWeight: 'bold',
+                fontSize: `${24 + (i % 3) * 6}px`,
+                animation: `float-zzz ${3 + (i % 2)}s infinite ease-in-out`,
+                animationDelay: `${i * 0.4}s`,
+                transform: `rotate(${(i % 2 === 0 ? 1 : -1) * 15}deg)`,
+              }}
+            >
+              ?
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* TODDLER Bubbles / Stars */}
+      {currentMood === 'toddler' && (
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+          {[...Array(10)].map((_, i) => (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                bottom: '-20px',
+                left: `${10 + (i * 9)}%`,
+                width: `${10 + (i % 4) * 4}px`,
+                height: `${10 + (i % 4) * 4}px`,
+                background: 'rgba(255, 255, 255, 0.6)',
+                borderRadius: '50%',
+                boxShadow: '0 0 10px rgba(255, 255, 255, 0.8)',
+                animation: 'rain-fall 4s infinite linear reverse',
+                animationDelay: `${i * 0.5}s`,
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* OVERPROTECTIVE Shield/Heart Pulse */}
+      {currentMood === 'overprotective' && (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'radial-gradient(circle at center, rgba(163, 203, 164, 0.2) 0%, rgba(201, 228, 202, 0.4) 100%)',
+            pointerEvents: 'none',
+            animation: 'pulse-breath 3s infinite ease-in-out',
+          }}
+        />
+      )}
+
+      {/* BARGAINER Coins/Stars */}
+      {currentMood === 'bargainer' && (
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+          {[...Array(7)].map((_, i) => (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                top: `${15 + (i * 12)}%`,
+                left: `${80 - (i * 10)}%`,
+                color: '#FFD700',
+                fontFamily: 'Fredoka, sans-serif',
+                fontWeight: 'bold',
+                fontSize: `${20 + (i % 2) * 5}px`,
+                animation: `float-zzz ${2.5 + (i % 2)}s infinite ease-in-out`,
+                animationDelay: `${i * 0.3}s`,
+                textShadow: '0 2px 4px rgba(0,0,0,0.2)'
+              }}
+            >
+              ★
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

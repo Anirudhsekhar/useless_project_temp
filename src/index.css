@@ -5,6 +5,10 @@
   --color-excited: #FFD166;
   --color-dramatic: #5A189A;
   --color-sad: #4A6B82;
+  --color-confused: #B8B8D1;
+  --color-toddler: #FFE29A;
+  --color-overprotective: #C9E4CA;
+  --color-bargainer: #FFB347;
 
   --pompom-body: #BCE7FD;
   --pompom-stroke: #FFFFFF;
@@ -124,6 +128,18 @@ body {
 }
 .anim-sad {
   animation: pulse-breath 3.5s infinite ease-in-out;
+}
+.anim-confused {
+  animation: swoon-tremble 3s infinite ease-in-out;
+}
+.anim-toddler {
+  animation: bounce-jump 1.2s infinite cubic-bezier(0.36, 0, 0.66, -0.56);
+}
+.anim-overprotective {
+  animation: pulse-breath 1.5s infinite ease-in-out;
+}
+.anim-bargainer {
+  animation: bounce-jump 2s infinite ease-in-out;
 }
 
 /* Speech bubble custom scrollbar */

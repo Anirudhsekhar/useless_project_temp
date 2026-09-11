@@ -39,3 +39,55 @@
 - **`.env.example`**: Updated model name placeholder to `gemini-3.6-flash`.
 - **`server/services/llm.js`**: Updated model fallback list to `['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite']` to reflect available Gemini models. Added automatic model fallback loop — if the primary model returns 404, server retries with backup models before falling back to local in-character fallback.
 - **End-to-end Verified**: Full HTTP API flow tested. Pompom correctly drifts mood (Excited → Sad on sad input), applies personality catch (incomplete trailing response), and returns structured avatar state (`state: "droopy"`, `event: "mood-change"`).
+
+## 2026-09-12 — MoodPet V2 Implementation
+
+### Implemented
+- Added Confused mood
+- Added Toddler mood
+- Added Overprotective Parent mood
+- Added Bargainer mood
+- Integrated all 10 moods
+- Added controlled mood randomness
+- Added developer mood shortcuts
+- Added automatic SpeechSynthesis
+- Added mood-based voice behavior
+- Added interactive response behavior
+- Added response variety
+- Added mood-specific visual states
+- Added mood transitions
+- Updated Gemini mood integration
+
+### Files Modified
+- `src/index.css`
+- `src/components/MoodEnvironment.jsx`
+- `src/components/PompomAvatar.jsx`
+- `src/App.jsx`
+- `server/prompts/moodpet.js`
+- `server/services/mood.js`
+- `server/services/llm.js`
+
+### Files Added
+- None
+
+### Files Removed
+- None
+
+### Testing
+- Existing moods tested
+- New moods tested
+- Developer shortcuts tested
+- Random mood behavior tested
+- Voice tested
+- Conversation history tested
+- Error handling tested
+- Production build tested
+
+### Build Status
+- Development: PASS
+- Production: PASS
+
+### Notes
+- Existing MoodPet architecture preserved.
+- Desktop Pet was NOT introduced.
+- No unrelated functionality intentionally changed.

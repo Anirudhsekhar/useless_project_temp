@@ -1,6 +1,6 @@
-export const VALID_MOODS = ['excited', 'sad', 'angry', 'dramatic', 'sleepy', 'shy'];
+export const VALID_MOODS = ['excited', 'sad', 'angry', 'dramatic', 'sleepy', 'shy', 'confused', 'toddler', 'overprotective', 'bargainer'];
 
-export const CATCH_TYPES = ['tangent', 'incomplete', 'minimal', 'exaggerated', 'trailing', 'hesitant'];
+export const CATCH_TYPES = ['tangent', 'incomplete', 'minimal', 'exaggerated', 'trailing', 'hesitant', 'second-guessing', 'distracted', 'safety-warning', 'transactional'];
 
 export const MOOD_AVATAR_STATES = {
   excited: 'energetic',
@@ -9,6 +9,10 @@ export const MOOD_AVATAR_STATES = {
   dramatic: 'dramatic',
   sleepy: 'drowsy',
   shy: 'bashful',
+  confused: 'dizzy',
+  toddler: 'playful',
+  overprotective: 'defensive',
+  bargainer: 'scheming',
 };
 
 export const CATCH_MAP = {
@@ -18,6 +22,10 @@ export const CATCH_MAP = {
   dramatic: 'exaggerated',
   sleepy: 'trailing',
   shy: 'hesitant',
+  confused: 'second-guessing',
+  toddler: 'distracted',
+  overprotective: 'safety-warning',
+  bargainer: 'transactional',
 };
 
 export function getRandomInitialMood() {
@@ -43,6 +51,18 @@ export function validateMoodState(rawState) {
   intensity = Math.max(0, Math.min(100, intensity));
 
   return { mood, intensity };
+}
+
+// Implement controlled mood randomness (e.g. 5% chance to randomly change mood)
+export function applyControlledRandomness(currentMood) {
+  if (Math.random() < 0.05) { // 5% chance
+    let newMood = currentMood;
+    while (newMood === currentMood) {
+      newMood = VALID_MOODS[Math.floor(Math.random() * VALID_MOODS.length)];
+    }
+    return newMood;
+  }
+  return null;
 }
 
 export function buildAvatarContract(newMoodState, previousMoodState, isError = false) {
