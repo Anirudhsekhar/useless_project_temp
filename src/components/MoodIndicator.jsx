@@ -7,6 +7,10 @@ const MOOD_META = {
   dramatic: { emoji: '🎭', name: 'Dramatic', color: '#5A189A', textColor: '#FFFFFF' },
   sleepy: { emoji: '💤', name: 'Sleepy', color: '#1E1B4B', textColor: '#D1C7FF' },
   shy: { emoji: '🌸', name: 'Shy', color: '#FAD2E1', textColor: '#5C1D36' },
+  confused: { emoji: '❓', name: 'Confused', color: '#B8B8D1', textColor: '#2B2B4A' },
+  toddler: { emoji: '🧸', name: 'Toddler', color: '#FFE29A', textColor: '#5E4200' },
+  overprotective: { emoji: '🛡️', name: 'Overprotective', color: '#C9E4CA', textColor: '#1A4D1D' },
+  bargainer: { emoji: '🤝', name: 'Bargainer', color: '#FFB347', textColor: '#592D00' },
 };
 
 export default function MoodIndicator({ mood, intensity, moodReason }) {

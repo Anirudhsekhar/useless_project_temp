@@ -44,7 +44,7 @@ export default function MoodEnvironment({ mood, intensity }) {
         bottom: 0,
         background: backgroundStyle,
         transition: 'background 0.8s ease-in-out',
-        zIndex: -1,
+        zIndex: 0,
         overflow: 'hidden',
       }}
     >

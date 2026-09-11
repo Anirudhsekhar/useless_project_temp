@@ -9,20 +9,20 @@ import { RotateCcw } from 'lucide-react';
 import { speak } from './services/voice.js';
 
 const SHORTCUT_MOODS = {
-  '1': 'excited',
-  '2': 'sad',
-  '3': 'angry',
-  '4': 'dramatic',
-  '5': 'sleepy',
-  '6': 'shy',
-  '7': 'confused',
-  '8': 'toddler',
-  '9': 'overprotective',
-  '0': 'bargainer',
+  '1': 'excited', '!': 'excited',
+  '2': 'sad', '@': 'sad',
+  '3': 'angry', '#': 'angry',
+  '4': 'dramatic', '$': 'dramatic',
+  '5': 'sleepy', '%': 'sleepy',
+  '6': 'shy', '^': 'shy',
+  '7': 'confused', '&': 'confused',
+  '8': 'toddler', '*': 'toddler',
+  '9': 'overprotective', '(': 'overprotective',
+  '0': 'bargainer', ')': 'bargainer',
 };
 
 export default function App() {
-  const [landingVisible, setLandingVisible] = useState(true);
+  const [landingVisible, setLandingVisible] = useState(false);
   const [mood, setMood] = useState({ mood: 'excited', intensity: 50 });
   const [moodReason, setMoodReason] = useState('Pompom is ready to chat!');
   const [messages, setMessages] = useState([]);
@@ -55,9 +55,16 @@ export default function App() {
           setMood((prev) => ({ ...prev, mood: newMoodName }));
           setMoodReason(`[DEV] Forced mood to ${newMoodName.toUpperCase()}`);
           setIsError(false);
+          // Automatically navigate to chat so the user can see the change
+          if (window.location.hash !== '#chat') {
+            window.location.hash = '#chat';
+          }
         } else if (e.key === 'R' || e.key === 'r') {
           e.preventDefault();
           handleResetSession();
+          if (window.location.hash !== '#chat') {
+            window.location.hash = '#chat';
+          }
         }
       }
     };
@@ -155,6 +162,8 @@ export default function App() {
             padding: '16px',
             maxWidth: '680px',
             margin: '0 auto',
+            position: 'relative',
+            zIndex: 1,
           }}
         >
           {/* Header */}
