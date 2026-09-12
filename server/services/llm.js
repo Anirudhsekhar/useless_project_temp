@@ -6,9 +6,21 @@ import { getLocalFallbackResponse } from '../utils/fallbacks.js';
 const FALLBACK_MODELS = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-1.5-flash-8b'];
 
 export async function generateMoodResponse({ message, history = [], currentMood, forcedMood = null }) {
+  const provider = (process.env.LLM_PROVIDER || 'auto').toLowerCase();
+
+  // If explicitly requested Ollama or if Gemini key is missing and OLLAMA_HOST is set or provider is ollama
+  if (provider === 'ollama') {
+    return generateOllamaResponse({ message, history, currentMood, forcedMood });
+  }
+
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    console.error('[MoodPet Server] GEMINI_API_KEY is missing from environment.');
+    console.log('[MoodPet Server] GEMINI_API_KEY missing. Attempting local Ollama model connection...');
+    const ollamaResult = await generateOllamaResponse({ message, history, currentMood, forcedMood });
+    if (ollamaResult.success) {
+      return ollamaResult;
+    }
+    console.error('[MoodPet Server] GEMINI_API_KEY is missing and Ollama local model unavailable.');
     return getLocalFallbackResponse('missing_api_key', currentMood);
   }
 
@@ -65,7 +77,7 @@ export async function generateMoodResponse({ message, history = [], currentMood,
 
   for (const modelName of modelsToTry) {
     try {
-      console.log(`[MoodPet LLM] Trying model: ${modelName}...`);
+      console.log(`[MoodPet LLM] Trying Gemini model: ${modelName}...`);
       const timeoutMs = 25000;
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error('LLM request timed out')), timeoutMs);
@@ -132,7 +144,14 @@ export async function generateMoodResponse({ message, history = [], currentMood,
     }
   }
 
-  console.error('[MoodPet LLM Error] All models failed:', lastError?.message || lastError);
+  console.error('[MoodPet LLM Error] Gemini models failed:', lastError?.message || lastError);
+
+  // If Gemini fails, try local Ollama before giving up to fallbacks
+  console.log('[MoodPet Server] Attempting local Ollama fallback...');
+  const ollamaResult = await generateOllamaResponse({ message, history, currentMood, forcedMood });
+  if (ollamaResult.success) {
+    return ollamaResult;
+  }
 
   if (lastError?.message?.includes('429') || lastError?.message?.includes('quota') || lastError?.message?.includes('rate')) {
     return getLocalFallbackResponse('rate_limit', currentMood);
@@ -143,3 +162,99 @@ export async function generateMoodResponse({ message, history = [], currentMood,
 
   return getLocalFallbackResponse('provider_error', currentMood);
 }
+
+/**
+ * Generate response using local Ollama instance (http://localhost:11434)
+ */
+async function generateOllamaResponse({ message, history = [], currentMood, forcedMood = null }) {
+  const host = process.env.OLLAMA_HOST || 'http://127.0.0.1:11434';
+  const model = process.env.OLLAMA_MODEL || 'llama3';
+  const systemPrompt = buildSystemPrompt(currentMood, forcedMood) + 
+    `\n\nCRITICAL INSTRUCTION: You MUST output ONLY a valid raw JSON object matching this structure with no markdown or intro text:
+{
+  "mood": "excited" | "sad" | "angry" | "dramatic" | "sleepy" | "shy" | "confused" | "toddler" | "overprotective" | "bargainer",
+  "intensity": 50,
+  "moodReason": "brief reason for current mood",
+  "response": "the text message to send to user",
+  "catchType": "tangent"
+}`;
+
+  const messages = [
+    { role: 'system', content: systemPrompt }
+  ];
+
+  if (Array.isArray(history) && history.length > 0) {
+    for (const msg of history.slice(-10)) {
+      messages.push({
+        role: msg.role === 'assistant' ? 'assistant' : 'user',
+        content: msg.content || ''
+      });
+    }
+  }
+
+  messages.push({ role: 'user', content: message });
+
+  try {
+    console.log(`[MoodPet Ollama] Requesting model '${model}' at ${host}...`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+    const res = await fetch(`${host.replace(/\/$/, '')}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
+      body: JSON.stringify({
+        model,
+        messages,
+        format: 'json',
+        stream: false,
+        options: { temperature: 0.7 }
+      })
+    });
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      throw new Error(`Ollama HTTP ${res.status}: ${res.statusText}`);
+    }
+
+    const data = await res.json();
+    const rawText = data.message?.content || data.response || '';
+    
+    let parsed = null;
+    try {
+      parsed = JSON.parse(rawText);
+    } catch (e) {
+      console.warn('[MoodPet Ollama] Failed to parse JSON from Ollama:', rawText);
+    }
+
+    if (!parsed || !parsed.response || !parsed.mood) {
+      throw new Error('Invalid or missing fields in Ollama response');
+    }
+
+    const randomMood = applyControlledRandomness(parsed.mood);
+    const finalMood = forcedMood || randomMood || parsed.mood;
+    const validatedMood = validateMoodState({
+      mood: finalMood,
+      intensity: randomMood ? Math.max(70, parsed.intensity) : parsed.intensity,
+    });
+
+    const catchType = parsed.catchType || CATCH_MAP[validatedMood.mood] || 'tangent';
+    const moodReason = parsed.moodReason || `Pompom is feeling ${validatedMood.mood}.`;
+    const avatar = buildAvatarContract(validatedMood, currentMood);
+
+    console.log(`[MoodPet Ollama Success] Model ${model} responded. Mood: ${validatedMood.mood}`);
+
+    return {
+      success: true,
+      mood: validatedMood,
+      moodReason,
+      response: parsed.response,
+      catchType,
+      avatar,
+    };
+  } catch (err) {
+    console.warn('[MoodPet Ollama Warning] Local Ollama request failed:', err.message || err);
+    return { success: false, error: err.message };
+  }
+}
+
