@@ -3,7 +3,7 @@ import { buildSystemPrompt } from '../prompts/moodpet.js';
 import { validateMoodState, buildAvatarContract, CATCH_MAP, applyControlledRandomness } from './mood.js';
 import { getLocalFallbackResponse } from '../utils/fallbacks.js';
 
-const FALLBACK_MODELS = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
+const FALLBACK_MODELS = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-1.5-flash-8b'];
 
 export async function generateMoodResponse({ message, history = [], currentMood, forcedMood = null }) {
   const apiKey = process.env.GEMINI_API_KEY;
