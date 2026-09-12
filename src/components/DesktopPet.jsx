@@ -6,7 +6,7 @@ export default function DesktopPet() {
 
   useEffect(() => {
     // Initial fetch just in case SSE connects too late to get current state
-    fetch('/api/initial-mood')
+    fetch('https://useless-project-temp-gamma-one.vercel.app/api/initial-mood')
       .then(r => r.json())
       .then(d => {
         if (d?.mood) setMoodState(d.mood);

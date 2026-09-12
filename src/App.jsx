@@ -32,7 +32,7 @@ export default function App() {
 
   // Fetch initial random mood on startup
   useEffect(() => {
-    fetch('/api/initial-mood')
+    fetch('https://useless-project-temp-gamma-one.vercel.app/api/initial-mood')
       .then((res) => res.json())
       .then((data) => {
         if (data?.success && data?.mood) {
@@ -77,7 +77,7 @@ export default function App() {
     setMessages([]);
     setIsError(false);
     setForcedMood(null);
-    fetch('/api/initial-mood')
+    fetch('https://useless-project-temp-gamma-one.vercel.app/api/initial-mood')
       .then((r) => r.json())
       .then((d) => {
         if (d?.mood) setMood(d.mood);
@@ -97,7 +97,7 @@ export default function App() {
     setIsProcessing(true);
 
     try {
-      const response = await fetch('/api/chat', {
+      const response = await fetch('https://useless-project-temp-gamma-one.vercel.app/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
